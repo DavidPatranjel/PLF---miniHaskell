@@ -20,7 +20,6 @@ main = do
             putStrLn "The load command!"
             main
         Just (Eval a) -> do
-            putStrLn a
             let rez = parseFirst exprParser a
             case rez of
                 Nothing -> do
