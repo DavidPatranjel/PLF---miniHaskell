@@ -78,3 +78,26 @@ exprParser = whiteSpace *> expr <* endOfInput
 -- >>> parseFirst exprParser "let x := 28 in \\y -> + x y"
 -- Just (Let (Var {getVar = "x"}) (Nat 28) (CLam (Var {getVar = "y"}) (CApp (CApp (CX (Var {getVar = "+"})) (CX (Var {getVar = "x"}))) (CX (Var {getVar = "y"})))))
 
+
+-- | parsează virgulă, eliminând spațiile de după
+semi :: Parser ()
+semi = reserved ";"
+
+
+-- | una sau mai multe instanțe, separate de punct-și-virgulă,
+-- cu eliminarea spațiilor de după fiecare punct-și-virgulă
+-- intoarce lista obiectelor parsate
+semiSep1 :: Parser a -> Parser [a]
+semiSep1 p = do
+                as <- many (p <* semi)
+                return as
+
+
+-- | citește un fișier și aplică analiza sintactică specificată asupra
+-- conținutului său
+parseFromFile :: Parser a -> FilePath -> IO (Either String a)
+parseFromFile parser file = do
+                              str <- readFile file
+                              case apply parser str of
+                                [] -> return $ Left "Cannot parse"
+                                (a,_):_ -> return $ Right a
